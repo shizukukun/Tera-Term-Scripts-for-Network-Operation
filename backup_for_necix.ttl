@@ -1,0 +1,46 @@
+timeout = 1
+commandtosend = 'show start'
+savename = ''
+
+setsync 1
+gettime timestr '_%Y%m%d_%H%M%S.txt'
+sendln 'terminal length 0'
+sendln commandtosend
+
+result=1
+while result=1
+  recvln
+  strmatch inputstr '^hostname\s+(.+)'
+  if result > 0 then
+	strconcat savename groupmatchstr1
+	strconcat savename timestr
+	result=0
+  else
+    result=1
+  endif
+endwhile
+
+sendln commandtosend
+waitln commandtosend
+
+fileopen file savename 0
+
+count = 1
+result=1
+while result=1
+  recvln
+  if count == 1 then
+	  recvln
+	  recvln
+  endif
+  if result == 0 then
+	  break	
+  endif
+  filewriteln file inputstr
+  count = count + 1
+endwhile
+setsync 0
+
+fileclose file
+end
+
