@@ -1,0 +1,49 @@
+timeout = 5
+pingres = 'bytes from'
+;pingres = 'alive'
+filename = 'pinglist.txt'
+
+
+fileopen fhandle filename 0
+gettime timestr '_%Y%m%d_%H%M%S.txt'
+log_file_name = 'pinglog'
+strconcat log_file_name timestr
+filecreate loghandle log_file_name
+
+
+:loop
+	filereadln fhandle line
+
+	if result then 
+		goto fclose
+	else
+		sendln ' '
+		strlen line
+
+		if result > 0 then
+			ping = 'ping '
+			strconcat ping line
+			mpause 50
+			sendln ping
+			waitln pingres
+
+			if result=0 then
+				send $03
+				log = 'NG,'
+				strconcat log line
+				filewriteln loghandle log
+			else
+				send $03
+				log = 'OK,'
+				strconcat log line
+				filewriteln loghandle log
+			endif
+		endif
+	endif
+	goto loop
+
+
+:fclose
+fileclose fhandle
+fileclose loghandle
+
